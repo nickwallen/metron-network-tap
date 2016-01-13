@@ -1,0 +1,55 @@
+---
+- name: Install snort prerequisites
+  yum: name=libdnet-devel state=latest update_cache=yes
+
+- name: Download daq
+  get_url: url="https://snort.org/downloads/snort/daq-{{ daq_version }}.src.rpm" dest=/tmp
+
+- name: Build daq
+  shell: rpmbuild --rebuild "daq-{{ daq_version }}.src.rpm" chdir=/tmp
+
+- name: Install daq
+  yum: name=/root/rpmbuild/RPMS/x86_64/daq-{{ daq_version }}.x86_64.rpm state=present
+
+- name: Download snort
+  get_url: url="https://snort.org/downloads/snort/snort-{{ snort_version }}.src.rpm" dest=/tmp
+
+- name: Build snort
+  shell: rpmbuild --rebuild "snort-{{ snort_version }}.src.rpm" chdir=/tmp
+
+- name: Install snort
+  yum: name=/root/rpmbuild/RPMS/x86_64/snort-{{ snort_version }}.x86_64.rpm state=present
+
+- name: Download snort configuration
+  copy: src=src/snort.conf dest=/etc/snort/snort.conf
+
+- name: Configure snort
+  lineinfile: >
+    dest=/etc/snort/snort.conf
+    regexp="{{ item.regexp }}"
+    line="{{ item.line }}"
+    state=present
+  with_items:
+    - { regexp: "^ipvar HOME_NET.*$", line: "ipvar HOME_NET {{ ansible_eth0.ipv4.address }}" }
+
+#
+# TODO download latest rules from snort website - requires credentials
+#
+- name: Download snort rules
+  unarchive: src=src/snortrules-snapshot-2962.tar.gz dest=/tmp
+
+- name: Install snort rules
+  shell: "{{ item }}"
+  args:
+    chdir: /tmp
+  with_items:
+    - mv -f rules etc/snort/
+    - mv -f so_rules /etc/snort/
+    - mv -f preproc_rules /etc/snort/
+    - touch /etc/snort/rules/white_list.rules
+    - touch /etc/snort/rules/black_list.rules
+    - chown -R snort:snort /etc/snort
+    #- ln -sf /usr/local/bin/snort /usr/sbin/snort
+
+- name: Start snort
+  service: name=snortd state=started

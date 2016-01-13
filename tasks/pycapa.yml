@@ -1,0 +1,24 @@
+
+- name: Install python and tcpdump
+  yum: name={{item}} state=latest update_cache=no
+  with_items:
+    - python
+    - python-pip
+    - tcpdump
+    - git
+
+- name: Clone pycapa repo
+  git: repo={{ pycapa_repo }} dest={{ pycapa_home }}
+
+- name: Build pycapa
+  shell: "{{ item }}"
+  args:
+    chdir: "{{ pycapa_home }}"
+  with_items:
+    - pip install -r requirements.txt
+    - pip install argparse
+    - python setup.py install
+
+# TODO - not idempotent! - need to make this a service somehow
+- name: Start pycapa
+  shell: "nohup python /opt/pycapa/pycapa/pycapa_cli.py -z {{ zookeeper_host }} -t {{ pycapa_topic }} -i {{ iface }} &"
