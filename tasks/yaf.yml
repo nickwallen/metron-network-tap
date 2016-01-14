@@ -76,21 +76,8 @@
     - { regexp: '^YAF_EXTRAFLAGS=.*$', line: 'YAF_EXTRAFLAGS='}
     - { regexp: '^YAF_CAP_IF=.*$', line: 'YAF_CAP_IF={{iface}}'}
 
-- name: Install flume configuration for ipfix
-  copy: src=src/flume-ipfix.conf dest=/etc/flume/conf/flume-ipfix.conf
-
-- name: Configure ipfix destination in flume configuration
-  lineinfile: >
-    dest=/etc/flume/conf/flume-ipfix.conf
-    regexp="{{ item.regexp }}"
-    line="{{ item.line }}"
-    state=present
-  with_items:
-    - { regexp: '^ipfix.sinks\.kafka-sink\.brokerList.*$', line: 'ipfix.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
-    - { regexp: '^ipfix.sinks\.kafka-sink\.topic.*$', line: 'ipfix.sinks.kafka-sink.topic = {{ yaf_topic }}'}
-
 - name: Start flume service to consume ipfix
-  service: name=flume-agent args=ipfix state=started
+  service: name=flume-agent state=started args=yaf
 
 - name: Start yaf service to produce ipfix
   service: name=yaf state=started

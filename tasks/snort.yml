@@ -37,8 +37,8 @@
     - cp -r preproc_rules /etc/snort/
     - touch /etc/snort/rules/white_list.rules
     - touch /etc/snort/rules/black_list.rules
+    - touch /var/log/snort/alerts
     - chown -R snort:snort /etc/snort
-    #- ln -sf /usr/local/bin/snort /usr/sbin/snort
 
 - name: Download snort configuration
   copy: src=src/snort.conf dest=/etc/snort/snort.conf
@@ -53,4 +53,7 @@
     - { regexp: "^ipvar HOME_NET.*$", line: "ipvar HOME_NET {{ ansible_eth0.ipv4.address }}" }
 
 - name: Start snort
-  service: name=snortd state=started
+  service: name=snortd state=restarted
+
+- name: Start flume service to consume snort alerts
+  service: name=flume-agent state=restarted args=snort

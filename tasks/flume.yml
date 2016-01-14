@@ -28,3 +28,32 @@
   shell: "{{item}}"
   with_items:
     - cp /usr/hdp/current/flume-server/etc/rc.d/init.d/flume-agent /etc/init.d/
+
+- name: Remove default flume configuration
+  shell: rm -f /etc/flume/conf/flume.conf
+
+- name: Install flume configuration for ipfix
+  copy: src=src/flume-ipfix.conf dest=/etc/flume/conf/flume-ipfix.conf
+
+- name: Configure ipfix destination
+  lineinfile: >
+    dest=/etc/flume/conf/flume-ipfix.conf
+    regexp="{{ item.regexp }}"
+    line="{{ item.line }}"
+    state=present
+  with_items:
+    - { regexp: '^ipfix.sinks\.kafka-sink\.brokerList.*$', line: 'ipfix.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
+    - { regexp: '^ipfix.sinks\.kafka-sink\.topic.*$', line: 'ipfix.sinks.kafka-sink.topic = {{ yaf_topic }}'}
+
+- name: Install flume configuration for snort
+  copy: src=src/flume-snort.conf dest=/etc/flume/conf/flume-snort.conf
+
+- name: Configure snort destination
+  lineinfile: >
+    dest=/etc/flume/conf/flume-ipfix.conf
+    regexp="{{ item.regexp }}"
+    line="{{ item.line }}"
+    state=present
+  with_items:
+    - { regexp: '^snort.sinks\.kafka-sink\.brokerList.*$', line: 'snort.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
+    - { regexp: '^snort.sinks\.kafka-sink\.topic.*$', line: 'snort.sinks.kafka-sink.topic = {{ snort_topic }}'}
