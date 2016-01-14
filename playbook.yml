@@ -23,6 +23,7 @@
    - include: tasks/kafka.yml
    - include: tasks/flume.yml
    - include: tasks/pycapa.yml
+   - include: tasks/kafkacat.yml
    - include: tasks/yaf.yml
    - include: tasks/bro.yml
    - include: tasks/snort.yml
