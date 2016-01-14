@@ -19,6 +19,10 @@
     - pip install argparse
     - python setup.py install
 
-# TODO - not idempotent! - need to make this a service somehow
+- name: Install prerequisites
+  yum: name=daemonize state=latest
+
 - name: Start pycapa
-  shell: "nohup python /opt/pycapa/pycapa/pycapa_cli.py -z {{ zookeeper_host }} -t {{ pycapa_topic }} -i {{ iface }} &"
+  shell: "daemonize -c {{ pycapa_home }} -e /var/log/pycapa.log -o /var/log/pycapa.log -l /var/lock/subsys/pycapa /usr/bin/python /opt/pycapa/pycapa/pycapa_cli.py  -z {{ zookeeper_host }} -t {{ pycapa_topic }} -i {{ iface }}"
+  args:
+    creates: /var/lock/subsys/pycapa
