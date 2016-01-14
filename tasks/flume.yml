@@ -58,6 +58,3 @@
     - { regexp: '^snort\.sinks\.kafka-sink\.brokerList.*$', line: 'snort.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
     - { regexp: '^snort\.sinks\.kafka-sink\.topic.*$', line: 'snort.sinks.kafka-sink.topic = {{ snort_topic }}'}
     - { regexp: '^snort\.sources\.exec-source\.command.*$', line: 'snort.sources.exec-source.command = tail -F /var/log/snort/alert'}
-
-
-snort.sources.exec-source.command = tail -F /var/log/snort/alert
