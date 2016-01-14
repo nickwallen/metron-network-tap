@@ -44,5 +44,11 @@
     - make
     - make install
 
-- name: Start Bro
+- name: Configure json logging
+  lineinfile: dest=/usr/local/bro/share/bro/site/local.bro line="@load policy/tuning/json-logs"
+
+- name: Install bro
+  shell: /usr/local/bro/bin/broctl install
+
+- name: Start bro
   shell: /usr/local/bro/bin/broctl deploy
