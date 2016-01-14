@@ -74,7 +74,7 @@
   with_items:
     - { regexp: '^ENABLED=.*$', line: 'ENABLED=1' }
     - { regexp: '^YAF_EXTRAFLAGS=.*$', line: 'YAF_EXTRAFLAGS='}
-    - { regexp: '^YAF_CAP_IF=.*$', line: 'YAF_CAP_IF={{iface}}'}
+    - { regexp: '^YAF_CAP_IF=.*$', line: 'YAF_CAP_IF={{ iface }}'}
 
 - name: Start flume service to consume ipfix
   service: name=flume-agent state=started args=yaf
