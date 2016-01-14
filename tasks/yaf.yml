@@ -77,7 +77,7 @@
     - { regexp: '^YAF_CAP_IF=.*$', line: 'YAF_CAP_IF={{ iface }}'}
 
 - name: Start flume service to consume ipfix
-  service: name=flume-agent state=started args=yaf
+  service: name=flume-agent state=restarted args=ipfix
 
 - name: Start yaf service to produce ipfix
-  service: name=yaf state=started
+  service: name=yaf state=restarted
