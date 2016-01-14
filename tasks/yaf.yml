@@ -86,8 +86,8 @@
     line="{{ item.line }}"
     state=present
   with_items:
-    - { regexp: '^agent.sinks\.kafka-sink\.brokerList.*$', line: 'agent.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
-    - { regexp: '^agent.sinks\.kafka-sink\.topic.*$', line: 'agent.sinks.kafka-sink.topic = {{ yaf_topic }}'}
+    - { regexp: '^ipfix.sinks\.kafka-sink\.brokerList.*$', line: 'ipfix.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
+    - { regexp: '^ipfix.sinks\.kafka-sink\.topic.*$', line: 'ipfix.sinks.kafka-sink.topic = {{ yaf_topic }}'}
 
 - name: Start flume service to consume ipfix
   service: name=flume-agent args=ipfix state=started
