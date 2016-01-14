@@ -32,29 +32,57 @@
 - name: Remove default flume configuration
   shell: rm -f /etc/flume/conf/flume.conf
 
-- name: Install flume configuration for ipfix
-  copy: src=src/flume-ipfix.conf dest=/etc/flume/conf/flume-ipfix.conf
+- name: Install flume configurations
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: src/flume-ipfix.conf, dest: /etc/flume/conf/flume-ipfix.conf }
+    - { src: src/flume-snort.conf, dest: /etc/flume/conf/flume-snort.conf }
+    - { src: src/flume-bro.conf.template, dest: /etc/flume/conf/flume-bro-conn.conf }
+    - { src: src/flume-bro.conf.template, dest: /etc/flume/conf/flume-bro-dns.conf }
+    - { src: src/flume-bro.conf.template, dest: /etc/flume/conf/flume-bro-software.conf }
 
-- name: Configure ipfix destination
+- name: Set kafka broker in flume
   lineinfile: >
-    dest=/etc/flume/conf/flume-ipfix.conf
+    dest="{{ item.dest }}"
     regexp="{{ item.regexp }}"
     line="{{ item.line }}"
     state=present
   with_items:
-    - { regexp: '^ipfix\.sinks\.kafka-sink\.brokerList.*$', line: 'ipfix.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
-    - { regexp: '^ipfix\.sinks\.kafka-sink\.topic.*$', line: 'ipfix.sinks.kafka-sink.topic = {{ yaf_topic }}'}
+    - { dest: /etc/flume/conf/flume-ipfix.conf,
+        regexp: '^ipfix\.sinks\.kafka-sink\.brokerList.*$',
+        line: 'ipfix.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
+    - { dest: /etc/flume/conf/flume-snort.conf,
+        regexp: '^snort\.sinks\.kafka-sink\.brokerList.*$',
+        line: 'snort.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
+    - { dest: /etc/flume/conf/flume-bro-conn.conf,
+        regexp: '^bro-conn\.sinks\.kafka-sink\.brokerList.*$',
+        line: 'bro-conn.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
+    - { dest: /etc/flume/conf/flume-bro-dns.conf,
+        regexp: '^bro-dns\.sinks\.kafka-sink\.brokerList.*$',
+        line: 'bro-dns.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
+    - { dest: /etc/flume/conf/flume-bro-software.conf,
+        regexp: '^bro-software\.sinks\.kafka-sink\.brokerList.*$',
+        line: 'bro-software.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
 
-- name: Install flume configuration for snort
-  copy: src=src/flume-snort.conf dest=/etc/flume/conf/flume-snort.conf
-
-- name: Configure snort destination
+- name: Set kafka topics in flume
   lineinfile: >
-    dest=/etc/flume/conf/flume-ipfix.conf
+    dest="{{ item.dest }}"
     regexp="{{ item.regexp }}"
     line="{{ item.line }}"
     state=present
   with_items:
-    - { regexp: '^snort\.sinks\.kafka-sink\.brokerList.*$', line: 'snort.sinks.kafka-sink.brokerList = {{ kafka_broker }}' }
-    - { regexp: '^snort\.sinks\.kafka-sink\.topic.*$', line: 'snort.sinks.kafka-sink.topic = {{ snort_topic }}'}
-    - { regexp: '^snort\.sources\.exec-source\.command.*$', line: 'snort.sources.exec-source.command = tail -F /var/log/snort/alert'}
+    - { dest: /etc/flume/conf/flume-ipfix.conf,
+        regexp: '^ipfix\.sinks\.kafka-sink\.topic.*$',
+        line: 'ipfix.sinks.kafka-sink.topic = {{ yaf_topic }}'}
+    - { dest: /etc/flume/conf/flume-snort.conf,
+        regexp: '^snort\.sinks\.kafka-sink\.topic.*$',
+        line: 'snort.sinks.kafka-sink.topic = {{ snort_topic }}'}
+    - { dest: /etc/flume/conf/flume-bro-conn.conf,
+        regexp: '^bro-conn\.sinks\.kafka-sink\.topic.*$',
+        line: 'bro-conn.sinks.kafka-sink.topic = {{ bro_conn_topic }}' }
+    - { dest: /etc/flume/conf/flume-bro-dns.conf,
+        regexp: '^bro-dns\.sinks\.kafka-sink\.topic.*$',
+        line: 'bro-dns.sinks.kafka-sink.topic = {{ bro_dns_topic }}' }
+    - { dest: /etc/flume/conf/flume-bro-software.conf,
+        regexp: '^bro-software\.sinks\.kafka-sink\.topic.*$',
+        line: 'bro-software.sinks.kafka-sink.topic = {{ bro_software_topic }}' }

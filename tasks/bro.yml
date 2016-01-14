@@ -47,8 +47,15 @@
 - name: Configure json logging
   lineinfile: dest=/usr/local/bro/share/bro/site/local.bro line="@load policy/tuning/json-logs"
 
-- name: Install bro
+- name: Install updated bro configuration
   shell: /usr/local/bro/bin/broctl install
+
+- name: Start flume to consume bro data
+  service: name=flume-agent state=started args={{ item }}
+  with_items:
+    - bro-conn
+    - bro-dns
+    - bro-software
 
 - name: Start bro
   shell: /usr/local/bro/bin/broctl deploy
